@@ -35,7 +35,7 @@ def main():
     
     # 5. 验证拟合效果
     print("\n拟合效果对比:")
-    for i, opt in enumerate(option_data[:5]):
+    for i, opt in enumerate(option_data[:469]):
         model_price = model.option_price(S0, opt["K"], opt["T"], opt["type"])
         print(f"期权{i+1}: 市场价格={opt['market_price']:.2f}, "
               f"模型价格={model_price:.2f}, "
