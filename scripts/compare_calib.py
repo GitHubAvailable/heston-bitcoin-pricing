@@ -717,7 +717,7 @@ class FastCalibrationComparison:
                        (log_m**2 - 2*log_m)
                 
                 vol_one = vol_base_one + adj1 + adj2
-                one_vols.append(vol_one / 100)
+                one_vols.append(vol_one)
                 
                 # TWO-STEP MODEL
                 E_vT_two = self.two_step_model.theta + \
@@ -732,7 +732,7 @@ class FastCalibrationComparison:
                            (log_m**2 - 2*log_m)
                 
                 vol_two = vol_base_two + adj1_two + adj2_two
-                two_vols.append(vol_two / 100)
+                two_vols.append(vol_two)
             
             # Plot model curves
             ax.plot(moneyness_grid, one_vols, lw=3.5,
@@ -777,41 +777,6 @@ class FastCalibrationComparison:
         print(f"\n{'='*70}")
         print(f"✓ Volatility matching plot saved to: {save_path}")
         print(f"{'='*70}\n")
-    
-    def _estimate_iv_from_prices(self, df, S0):
-        """Estimate implied volatility from market prices using Black-Scholes."""
-        from scipy.stats import norm
-        from scipy.optimize import brentq
-        
-        ivs = []
-        
-        for _, row in df.iterrows():
-            K = row['K']
-            T = row['T']
-            price = row['market_price']
-            opt_type = row['type']
-            
-            # Black-Scholes formula
-            def bs_price(sigma):
-                if sigma <= 0 or T <= 0:
-                    return np.inf
-                d1 = (np.log(S0/K) + (self.r - self.q + 0.5*sigma**2)*T) / (sigma*np.sqrt(T))
-                d2 = d1 - sigma*np.sqrt(T)
-                
-                if opt_type == 'call':
-                    return S0*np.exp(-self.q*T)*norm.cdf(d1) - K*np.exp(-self.r*T)*norm.cdf(d2)
-                else:
-                    return K*np.exp(-self.r*T)*norm.cdf(-d2) - S0*np.exp(-self.q*T)*norm.cdf(-d1)
-            
-            # Solve for IV
-            try:
-                iv = brentq(lambda sig: bs_price(sig) - price, 0.01, 3.0)
-                ivs.append(iv)
-            except:
-                ivs.append(np.nan)
-        
-        return ivs
-
 
 def main():
     """Main execution."""
