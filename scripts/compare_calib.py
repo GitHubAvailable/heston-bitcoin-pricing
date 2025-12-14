@@ -687,7 +687,7 @@ class FastCalibrationComparison:
             
             # Market data points
             moneyness_market = bin_data['moneyness'].values
-            iv_market = bin_data['mark_iv'].values * 100  # Convert to percentage
+            iv_market = bin_data['mark_iv'].values / 100 # Convert to percentage
             
             # Plot market IVs
             ax.scatter(moneyness_market, iv_market,
@@ -717,7 +717,7 @@ class FastCalibrationComparison:
                        (log_m**2 - 2*log_m)
                 
                 vol_one = vol_base_one + adj1 + adj2
-                one_vols.append(vol_one * 100)
+                one_vols.append(vol_one / 100)
                 
                 # TWO-STEP MODEL
                 E_vT_two = self.two_step_model.theta + \
@@ -732,7 +732,7 @@ class FastCalibrationComparison:
                            (log_m**2 - 2*log_m)
                 
                 vol_two = vol_base_two + adj1_two + adj2_two
-                two_vols.append(vol_two * 100)
+                two_vols.append(vol_two / 100)
             
             # Plot model curves
             ax.plot(moneyness_grid, one_vols, lw=3.5,
@@ -761,8 +761,8 @@ class FastCalibrationComparison:
             ax.set_xlim(0.65, 1.5)
             
             # Dynamic y-axis
-            y_min = max(0, min(iv_market) - 10)
-            y_max = max(iv_market) + 10
+            y_min = max(0, min(iv_market) - 0.5)
+            y_max = max(iv_market) + 0.5
             ax.set_ylim(y_min, y_max)
             
             print(f"    Market IV range: {min(iv_market):.1f}% - {max(iv_market):.1f}%")

@@ -1,0 +1,45 @@
+
+  One-Step Calibration Complete (Time: 543.6s)
+======================================================================
+  κ (kappa):     2.0164
+  θ (theta):     0.2945
+  σ (sigma):     1.0898
+  ρ (rho):       -0.1220
+  v₀ (v0):       0.2492
+  Objective:     0.034318
+
+  Feller: 2κθ = 1.1879 vs σ² = 1.1878
+  Satisfied: ✓
+
+======================================================================
+TWO-STEP CALIBRATION
+======================================================================
+
+Selecting calibration sample from 469 options...
+Selected 40 representative options for calibration
+  Maturity range: [0.006, 0.806] years
+  Moneyness range: [0.703, 1.297]
+
+Stage 1: Calibrating volatility parameters...
+differential_evolution step 1: f(x)= 10000000000.0
+differential_evolution step 2: f(x)= 10000000000.0
+Polishing solution with 'L-BFGS-B'
+
+Stage 1 Complete (Time: 0.0s)
+  κ: 3.1740, θ: 0.5662, σ: 1.3885, v₀: 0.6722
+
+Stage 2: Calibrating correlation...
+
+============================================================
+STAGE 2: Calibrating Correlation to Option Prices
+============================================================
+
+Coarse grid search for rho...
+Coarse grid best: rho = -0.900, error = 2.106787
+
+Fine optimization around best rho...
+
+Stage 2 Results:
+  ρ (rho):     -0.9390
+  MSE (Price): 2.102091
+  Success:     True
