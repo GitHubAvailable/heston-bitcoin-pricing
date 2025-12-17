@@ -316,7 +316,7 @@ def parse_option_data(path: str) -> tuple[list[dict], float]:
 
 def main(path: str = ""):
     if not path:
-        path = "data/deribit_btc_options_clean.csv"
+        path = "../data/deribit_btc_options_clean.csv"
 
     # Parse data
     option_data, S0 = parse_option_data(path)
