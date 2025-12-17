@@ -386,7 +386,7 @@ def summary_statistics(df: pd.DataFrame) -> dict:
 # Example usage
 if __name__ == "__main__":
     # Load and calculate IVs
-    df = calculate_iv_from_data('data/deribit_btc_options_clean.csv')
+    df = calculate_iv_from_data('../data/deribit_btc_options_clean.csv')
     
     print("Summary Statistics:")
     stats = summary_statistics(df)

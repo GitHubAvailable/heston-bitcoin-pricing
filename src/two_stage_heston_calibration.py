@@ -481,7 +481,7 @@ def main():
     
     # Load data
     print("Loading option data...")
-    option_data, S0 = parse_option_data("data/deribit_btc_options_clean.csv")
+    option_data, S0 = parse_option_data("../data/deribit_btc_options_clean.csv")
     
     print(f"Loaded {len(option_data)} options")
     print(f"Spot price: ${S0:.2f}")
