@@ -1,0 +1,25 @@
+{
+  "calibration_date": "2025-12-16 21:31:20",
+  "spot_price": 382.44,
+  "risk_free_rate": 0.043,
+  "dividend_yield": 0.016,
+  "heston_parameters": {
+    "kappa": 1.6287077925018638,
+    "theta": 0.09378952390174089,
+    "sigma": 0.5527309080978955,
+    "rho": -0.32931880428662114,
+    "v0": 0.04515963675965373
+  },
+  "volatility_interpretation": {
+    "long_term_vol_pct": 30.625075330803824,
+    "current_vol_pct": 21.2507968696832
+  },
+  "calibration_metrics": {
+    "objective_value": 711.723577651521,
+    "success": true,
+    "iterations": 23,
+    "mae": 0.46322195843591174,
+    "rmse": 0.6203930695462228,
+    "mape": 3.02362072599134
+  }
+}

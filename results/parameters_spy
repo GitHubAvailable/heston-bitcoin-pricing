@@ -1,0 +1,64 @@
+SPY Options - Heston Model One-Stage Calibration
+============================================================
+Loaded option count: 7486
+SPY Spot Price: $382.44
+
+============================================================
+Data Quality Filtering
+============================================================
+Original option count: 7486
+
+Filtered options:
+  - Moneyness not in [0.85, 1.15]: 3214
+  - Price below $2: 1158
+  - Maturity not in [7 days, 1 year]: 856
+  - Spread > 15%: 0
+
+Retained option count: 2258
+Filter rate: 69.8%
+
+Initial Parameters:
+  Risk-free rate r = 4.30%
+  Dividend yield q = 1.60%
+
+Pre-calibration Pricing Test:
+  Option Type: CALL
+  Strike Price: $326.00
+  Time to Maturity: 0.0274 years
+  Model Price: $56.66
+  Market Price: $56.62
+
+============================================================
+Start Model Calibration (using first 2258 options)
+============================================================
+Calibrating, please wait...
+
+============================================================
+Calibration Results
+============================================================
+Status: ✓ Calibration Successful
+
+Calibrated Heston Parameters:
+  kappa (Mean reversion speed):    1.6287
+  theta (Long-term variance):      0.0938
+  sigma (Vol of vol):              0.5527
+  rho (Correlation):               -0.3293
+  v0 (Initial variance):           0.0452
+
+Volatility Interpretation:
+  Long-term Volatility: 30.63%
+  Current Volatility: 21.25%
+
+Feller Condition Check: 2κθ = 0.3055 vs σ² = 0.3055
+  ✓ Satisfied
+
+Optimization Objective Value: 711.723578
+Iterations: 23
+
+
+Full Data Error Statistics:
+  Mean Absolute Error (MAE): $0.46
+  Root Mean Square Error (RMSE): $0.62
+  Mean Relative Error (MAPE): 3.02%
+  Median Relative Error: 1.88%
+

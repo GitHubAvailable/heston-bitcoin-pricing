@@ -11,16 +11,16 @@ def get_deribit_option_data(currency='BTC'):
         "kind": "option"
     }
 
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] 正在从 Deribit 获取 {currency} 全量期权数据...")
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] Fetching full {currency} option data from Deribit...")
     try:
         resp = requests.get(url, params=params)
         data = resp.json()
     except Exception as e:
-        print(f"请求失败: {e}")
+        print(f"Request failed: {e}")
         return None
 
     if 'result' not in data:
-        print("未获取到结果，请检查网络或参数。")
+        print("No results obtained. Please check network or parameters.")
         return None
 
     options_list = []
@@ -36,7 +36,7 @@ def get_deribit_option_data(currency='BTC'):
         option_type = 'call' if parts[3] == 'C' else 'put'
         S0 = entry.get('underlying_price')
 
-        # 计算到期时间 T
+        # Calculate time to maturity T
         try:
             dt = datetime.strptime(expiry_str, "%d%b%y")
             dt = dt.replace(hour=8)
@@ -46,14 +46,14 @@ def get_deribit_option_data(currency='BTC'):
         except:
             T = 0
 
-        # 提取关键价格信息
+        # Extract key price information
         bid_btc = entry.get('bid_price') or 0.0
         ask_btc = entry.get('ask_price') or 0.0
         mark_price = entry.get('mark_price') or 0.0
         mark_iv = entry.get('mark_iv') or 0.0
 
-        # 计算相对价差 (Spread %), 用于后续分析 (可选)
-        # 如果价差过大，说明市场分歧大或流动性差
+        # Calculate relative spread (Spread %), for subsequent analysis (optional)
+        # Large spread implies high market divergence or low liquidity
         spread_pct = (ask_btc - bid_btc) / mark_price if mark_price > 0 else 0
 
         item = {
@@ -81,44 +81,44 @@ if __name__ == "__main__":
     df = get_deribit_option_data("BTC")
 
     if df is not None:
-        print(f"原始数据条数: {len(df)}")
+        print(f"Original data count: {len(df)}")
 
-        # --- 数据清洗与过滤核心逻辑 ---
+        # --- Core Data Cleaning and Filtering Logic ---
 
-        # 1. 基础过滤: 去掉过期数据 (T < 1天 通常噪音很大，Gamma风险极高，不适合做Heston校准)
-        # 建议保留至少 2 天以上的数据，或者保持你原来的 0.002 (约17小时)
-        mask_time = df['T_years'] > 0.004  # 0.004 约为 1.5 天
+        # 1. Basic Filter: Remove short-dated data (T < 1 day is noisy, high Gamma risk, unsuitable for Heston calibration)
+        # Recommendation: Retain data > 2 days, or keep original 0.002 (~17 hours)
+        mask_time = df['T_years'] > 0.004  # 0.004 is approx 1.5 days
 
-        # 2. 流动性过滤: 必须有买单 (Bid > 0)
-        # 这是最关键的一步。如果Bid为0，说明你卖不出去，市场定价失效。
+        # 2. Liquidity Filter: Must have buy orders (Bid > 0)
+        # Critical step. Bid = 0 implies illiquidity and invalid market pricing.
         mask_liquidity = df['bid_btc'] > 0
 
-        # 3. 价格有效性: 市场价格不能太接近0
-        # 深度虚值的垃圾期权价格可能为 0.0001，这种数据对校准不仅没用，还会导致除以零错误
+        # 3. Price Validity: Market price cannot be too close to 0
+        # Deep OTM options with negligible prices (e.g., 0.0001) are useless for calibration and cause division by zero errors
         mask_price = df['market_price_btc'] > 0.0005
 
-        # 4. IV 有效性: 交易所必须能算出有效的 IV
+        # 4. IV Validity: Exchange must provide valid IV
         mask_iv = df['mark_iv'] > 0
 
-        # 应用所有过滤器
+        # Apply all filters
         df_clean = df[mask_time & mask_liquidity & mask_price & mask_iv].copy()
 
-        # --- 排序优化 ---
-        # 这种排序方式方便你观察 Smile：
-        # 先看同一个到期日 -> 再看Strike从小到大 -> 每一对Strike你会看到 Call 和 Put 在一起
+        # --- Sorting Optimization ---
+        # Sorting facilitates Volatility Smile observation:
+        # Group by Maturity -> Strike (Ascending) -> Call/Put pairs
         df_clean = df_clean.sort_values(by=['T_years', 'strike', 'type'], ascending=[True, True, True])
 
-        # 保存 CSV
-        filename = 'data/deribit_btc_options_clean.csv'
+        # Save CSV
+        filename = '../data/deribit_btc_options_clean.csv'
         df_clean.to_csv(filename, index=False)
 
-        print(f"清洗后数据条数: {len(df_clean)} (过滤掉了 {len(df) - len(df_clean)} 条低质量数据)")
-        print(f"数据已保存至: {os.path.abspath(filename)}")
+        print(f"Cleaned data count: {len(df_clean)} (filtered out {len(df) - len(df_clean)} low quality records)")
+        print(f"Data saved to: {os.path.abspath(filename)}")
 
-        # --- 打印数据质量检查 ---
-        print("\n数据概览 (前10条):")
+        # --- Data Quality Check ---
+        print("\nData Overview (First 10 records):")
         print(df_clean[['expiry_date', 'strike', 'type', 'market_price_usd', 'mark_iv', 'bid_btc', 'ask_btc']].head(10))
 
-        # 检查一下覆盖了多少个不同的到期日
+        # Check coverage of different maturities
         maturities = df_clean['expiry_date'].unique()
-        print(f"\n捕获到的有效到期日 ({len(maturities)}个): {maturities}")
+        print(f"\nValid maturities captured ({len(maturities)}): {maturities}")

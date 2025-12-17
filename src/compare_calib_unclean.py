@@ -613,7 +613,7 @@ class FastCalibrationComparison:
         # First try to load from original CSV if it has mark_iv
         df_with_iv = None
         try:
-            df_csv = pd.read_csv("data/deribit_btc_options_clean.csv")
+            df_csv = pd.read_csv("../data/deribit_btc_options_clean.csv")
             if 'mark_iv' in df_csv.columns:
                 print("  Using mark_iv from CSV file")
                 # Merge with option_data based on strike and maturity
@@ -788,7 +788,7 @@ def main():
     
     # Load data
     print("\nLoading data...")
-    option_data, S0 = parse_option_data("data/deribit_btc_options.csv")
+    option_data, S0 = parse_option_data("../data/deribit_btc_options.csv")
     print(f"✓ Loaded {len(option_data)} options (S₀ = ${S0:.2f})")
     
     # Initialize

@@ -11,16 +11,16 @@ def get_deribit_option_data(currency='BTC'):
         "kind": "option"
     }
 
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] 正在从 Deribit 获取 {currency} 全量期权数据...")
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] Fetching all {currency} option data from Deribit...")
     try:
         resp = requests.get(url, params=params)
         data = resp.json()
     except Exception as e:
-        print(f"请求失败: {e}")
+        print(f"Request failed: {e}")
         return None
 
     if 'result' not in data:
-        print("未获取到结果，请检查网络或参数。")
+        print("No results obtained. Please check network or parameters.")
         return None
 
     options_list = []
@@ -37,13 +37,13 @@ def get_deribit_option_data(currency='BTC'):
         strike = float(parts[2])
         option_type = 'call' if parts[3] == 'C' else 'put'
 
-        # 标的价格
+        # Underlying price
         S0 = entry.get('underlying_price')
 
-        # 计算到期时间 T (年化)
+        # Calculate time to maturity T (annualized)
         try:
             dt = datetime.strptime(expiry_str, "%d%b%y")
-            dt = dt.replace(hour=8)  # Deribit 交割时间
+            dt = dt.replace(hour=8)  # Deribit delivery time
             delta = dt - now
             days = delta.days + delta.seconds / (24 * 3600)
             T = max(days / 365.0, 0.0001)
@@ -58,7 +58,7 @@ def get_deribit_option_data(currency='BTC'):
             'T_years': round(T, 5),
             'S0': S0,
             'market_price_btc': entry.get('mark_price'),
-            'market_price_usd': entry.get('mark_price') * S0,  # 目标价格
+            'market_price_usd': entry.get('mark_price') * S0,  # Target Price (USD)
             'mark_iv': entry.get('mark_iv'),
             'bid_btc': entry.get('bid_price'),
             'ask_btc': entry.get('ask_price'),
@@ -74,22 +74,23 @@ if __name__ == "__main__":
     df = get_deribit_option_data("BTC")
 
     if df is not None:
-        # 1. 过滤: 去掉过期数据
+        # 1. Filter: Remove expired data
         df_clean = df[df['T_years'] > 0.002]
 
-        # 2. 排序: 到期日(近->远) -> 类型(Call->Put) -> 行权价(低->高)
-        # ascending=[True, True, True] 意味着:
-        # T_years: 从小到大
-
-        # strike: 从小到大
+        # 2. Sort: Maturity (Near->Far) -> Strike (Low->High) -> Type
+        # ascending=[True, True, True] means:
+        # T_years: Small to Large
+        # strike: Small to Large
         df_clean = df_clean.sort_values(by=['T_years', 'strike', 'type'], ascending=[True, True, True])
 
-        # 3. 保存 CSV
-        filename = 'data/deribit_btc_options.csv'
+        # 3. Save CSV
+        filename = '../data/deribit_btc_options.csv'
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
         df_clean.to_csv(filename, index=False)
 
-        print(f"\n成功! 数据已保存至: {os.path.abspath(filename)}")
-        print(f"总共获取: {len(df_clean)} 条数据")
-        print("\n数据预览 (Call vs Put 排列展示):")
-        # 打印一下同一个到期日下的交界处，看看是否整齐
+        print(f"\nSuccess! Data saved to: {os.path.abspath(filename)}")
+        print(f"Total fetched: {len(df_clean)} records")
+        print("\nData Preview:")
+        # Print a sample to check alignment
         print(df_clean[['instrument_name', 'type', 'strike', 'T_years', 'market_price_usd']].head(5))
